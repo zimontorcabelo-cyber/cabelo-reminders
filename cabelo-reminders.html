@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CABELO — תזכורות תורים</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --accent: #c9a96e;
+    --accent2: #e8c98a;
+    --text: #f0ede8;
+    --text-muted: #888;
+    --whatsapp: #25d366;
+    --whatsapp-dark: #1da851;
+    --sent: #2e7d4f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .date-badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Main */
+  .main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  /* Auth section */
+  .auth-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .auth-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+
+  .auth-section p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .btn-auth {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-auth:hover {
+    background: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-right: 4px;
+  }
+
+  /* Appointment card */
+  .appointment-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .appointment-card::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+
+  .appointment-card.sent::before {
+    background: var(--whatsapp);
+    opacity: 1;
+  }
+
+  .appointment-card:hover {
+    border-color: var(--accent);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .client-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .time-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    direction: ltr;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .meta-item {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .meta-icon { font-size: 13px; }
+
+  /* Message preview */
+  .msg-preview {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 12px;
+    white-space: pre-wrap;
+    direction: rtl;
+  }
+
+  /* Send button */
+  .btn-send {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--whatsapp);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-send:hover {
+    background: var(--whatsapp-dark);
+    transform: translateY(-1px);
+  }
+
+  .btn-send.sent-btn {
+    background: var(--sent);
+    cursor: default;
+  }
+
+  .btn-send.sent-btn:hover {
+    transform: none;
+  }
+
+  /* Empty state */
+  .empty-state {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; color: var(--text-muted); }
+
+  /* Loading */
+  .loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Date picker */
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .date-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .date-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: 'Heebo', sans-serif;
+    direction: ltr;
+    cursor: pointer;
+    flex: 1;
+  }
+
+  .date-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .btn-load {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-load:hover {
+    background: var(--accent);
+    color: #000;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--whatsapp);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .error-msg {
+    background: #3a1a1a;
+    border: 1px solid #7a2a2a;
+    color: #ff8080;
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">CABELO</div>
+    <div class="subtitle">מערכת תזכורות תורים</div>
+  </div>
+  <div class="date-badge" id="todayBadge">—</div>
+</div>
+
+<div class="main">
+  <div id="app"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Config ───────────────────────────────────────────────
+const CLIENT_ID = '551628662367-eafngulot33vkge2gc8f5pnqinllff0c.apps.googleusercontent.com'; // ← הכנס Client ID של Google
+const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+const BOOKING_LINK = 'https://ezbz.me/pGkpUmKWqQyp';
+const DAYS_AHEAD = 2;
+
+// ─── State ────────────────────────────────────────────────
+let tokenClient = null;
+let accessToken = null;
+let sentMap = {};
+let appointments = [];
+let selectedDate = null;
+
+// ─── Init ─────────────────────────────────────────────────
+window.onload = () => {
+  updateTodayBadge();
+  renderApp();
+  loadGIS();
+};
+
+function updateTodayBadge() {
+  const today = new Date();
+  document.getElementById('todayBadge').textContent =
+    today.toLocaleDateString('he-IL', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function loadGIS() {
+  const s = document.createElement('script');
+  s.src = 'https://accounts.google.com/gsi/client';
+  s.async = true;
+  s.defer = true;
+  s.onload = initGIS;
+  document.head.appendChild(s);
+}
+
+function initGIS() {
+  if (!CLIENT_ID) return; // Demo mode
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) { showError('שגיאה בהתחברות'); return; }
+      accessToken = resp.access_token;
+      loadAppointments();
+    }
+  });
+}
+
+function login() {
+  if (!CLIENT_ID) {
+    // Demo mode — show sample data
+    loadDemoData();
+    return;
+  }
+  tokenClient.requestAccessToken({ prompt: '' });
+}
+
+// ─── Date helpers ─────────────────────────────────────────
+function getTargetDate(offset = DAYS_AHEAD) {
+  if (selectedDate) return new Date(selectedDate);
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d;
+}
+
+function formatDateHE(dateStr) {
+  const d = new Date(dateStr);
+  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  return `יום ${days[d.getDay()]}, ${d.getDate()} ב${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatTime(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function isoDate(d) {
+  return d.toISOString().split('T')[0];
+}
+
+// ─── Load from Google Calendar ────────────────────────────
+async function loadAppointments() {
+  renderLoading();
+  const target = getTargetDate();
+  const start = new Date(target); start.setHours(0,0,0,0);
+  const end   = new Date(target); end.setHours(23,59,59,999);
+
+  const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
+    `timeMin=${start.toISOString()}&timeMax=${end.toISOString()}` +
+    `&singleEvents=true&orderBy=startTime&maxResults=50`;
+
+  try {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const data = await res.json();
+    if (data.error) { showError('שגיאה בטעינת יומן: ' + data.error.message); return; }
+
+    // Filter only client appointments (contain phone number pattern)
+    appointments = (data.items || [])
+      .filter(e => e.summary && /0\d{9}/.test(e.summary))
+      .map(e => parseEvent(e));
+
+    renderAppointments();
+  } catch(err) {
+    showError('שגיאת רשת: ' + err.message);
+  }
+}
+
+function parseEvent(e) {
+  const sum = e.summary || '';
+  // Parse: "שם לקוח | טיפול N | 05XXXXXXXX"
+  const parts = sum.split('|').map(s => s.trim());
+  const name = parts[0] || 'לקוח';
+  const treatments = parts[1] || '';
+  const phone = (parts[2] || '').replace(/\D/g, '');
+
+  // Extract birthday from description
+  let birthday = null;
+  const desc = e.description || '';
+  const bdMatch = desc.match(/תאריך לידה:\s*(\d{2}\/\d{2}\/\d{4})/);
+  if (bdMatch) birthday = bdMatch[1];
+
+  return {
+    id: e.id,
+    name,
+    treatments,
+    phone,
+    birthday,
+    startTime: e.start?.dateTime || e.start?.date,
+    endTime: e.end?.dateTime || e.end?.date,
+    summary: sum,
+  };
+}
+
+// ─── Build WhatsApp message ───────────────────────────────
+function buildMessage(appt) {
+  const target = getTargetDate();
+  const dayStr = formatDateHE(appt.startTime);
+  const timeStr = formatTime(appt.startTime);
+
+  return `שלום ${appt.name} 😊
+
+רצינו להזכיר לך שיש לך תור ב-CABELO:
+📅 ${dayStr}
+🕐 שעה ${timeStr}
+
+במידה וברצונך לשנות את מועד התור, ניתן לעשות זאת דרך הקישור:
+🔗 ${BOOKING_LINK}
+
+נשמח לראותך! 💛
+נא אשר/י קבלת ההודעה 🙏`;
+}
+
+function buildWALink(phone, msg) {
+  // Normalize Israeli phone
+  let p = phone.replace(/\D/g, '');
+  if (p.startsWith('0')) p = '972' + p.slice(1);
+  return `https://wa.me/${p}?text=${encodeURIComponent(msg)}`;
+}
+
+// ─── Send ─────────────────────────────────────────────────
+function sendReminder(appt) {
+  const msg = buildMessage(appt);
+  const url = buildWALink(appt.phone, msg);
+  window.open(url, '_blank');
+  sentMap[appt.id] = true;
+  renderAppointments();
+  showToast(`✓ נפתח וואטסאפ עבור ${appt.name}`);
+}
+
+// ─── Render ───────────────────────────────────────────────
+function renderApp() {
+  if (!accessToken && CLIENT_ID !== '__DEMO__') {
+    renderAuth();
+  } else {
+    renderAppointments();
+  }
+}
+
+function renderAuth() {
+  document.getElementById('app').innerHTML = `
+    <div class="auth-section">
+      <h2>🔐 התחברות ליומן Google</h2>
+      <p>על מנת לטעון את תורי היום הבא, יש להתחבר לחשבון Google שלך.</p>
+      <button class="btn-auth" onclick="login()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        התחבר עם Google
+      </button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;font-size:12px;color:var(--text-muted);line-height:1.7;">
+      <strong style="color:var(--accent)">הגדרה נדרשת:</strong><br>
+      כדי שהכלי יעבוד, יש להוסיף Google Client ID בקוד (שורה 3 בסקריפט).<br>
+      ניתן ליצור אחד ב-<a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent)">Google Cloud Console</a>.
+    </div>
+  `;
+}
+
+function renderLoading() {
+  document.getElementById('app').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>טוען תורים...</div>
+    </div>
+  `;
+}
+
+function renderAppointments() {
+  const target = getTargetDate();
+  const targetStr = isoDate(target);
+  const dayStr = formatDateHE(target.toISOString());
+  const sentCount = Object.keys(sentMap).length;
+
+  let html = '';
+
+  // Date picker row
+  html += `
+    <div class="date-row">
+      <span class="date-label">תאריך תורים:</span>
+      <input type="date" class="date-input" id="datePicker" value="${targetStr}" />
+      <button class="btn-load" onclick="changeDate()">טען תורים</button>
+    </div>
+  `;
+
+  if (appointments.length > 0) {
+    // Stats
+    html += `
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-num">${appointments.length}</div>
+          <div class="stat-label">תורים</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" style="color:var(--whatsapp)">${sentCount}</div>
+          <div class="stat-label">נשלחו</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">${appointments.length - sentCount}</div>
+          <div class="stat-label">ממתינים</div>
+        </div>
+      </div>
+    `;
+
+    html += `<div class="section-title">תורים ל${dayStr}</div>`;
+
+    appointments.forEach(appt => {
+      const isSent = sentMap[appt.id];
+      const msg = buildMessage(appt);
+      const timeStr = formatTime(appt.startTime);
+
+      html += `
+        <div class="appointment-card ${isSent ? 'sent' : ''}">
+          <div class="card-top">
+            <div class="client-name">${appt.name}</div>
+            <div class="time-badge">${timeStr}</div>
+          </div>
+          <div class="card-meta">
+            ${appt.phone ? `<span class="meta-item"><span class="meta-icon">📱</span>${appt.phone}</span>` : ''}
+            ${appt.treatments ? `<span class="meta-item"><span class="meta-icon">✂️</span>${appt.treatments}</span>` : ''}
+            ${appt.birthday ? `<span class="meta-item"><span class="meta-icon">🎂</span>${appt.birthday}</span>` : ''}
+          </div>
+          <div class="msg-preview">${msg}</div>
+          <button class="btn-send ${isSent ? 'sent-btn' : ''}"
+            onclick="${isSent ? '' : `sendReminder_${appt.id.replace(/[^a-z0-9]/gi,'_')}()`}">
+            ${isSent
+              ? '✓ תזכורת נשלחה'
+              : `<svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.556 4.1 1.524 5.821L0 24l6.335-1.508A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.372l-.36-.214-3.727.977.994-3.634-.234-.374A9.818 9.818 0 012.182 12C2.182 6.578 6.578 2.182 12 2.182S21.818 6.578 21.818 12 17.422 21.818 12 21.818z"/></svg>
+              שלח תזכורת ב-WhatsApp`}
+          </button>
+        </div>
+      `;
+    });
+
+    // Register send functions dynamically
+    setTimeout(() => {
+      appointments.forEach(appt => {
+        const fnName = `sendReminder_${appt.id.replace(/[^a-z0-9]/gi,'_')}`;
+        window[fnName] = () => sendReminder(appt);
+      });
+    }, 0);
+
+  } else if (accessToken || CLIENT_ID === '__DEMO__') {
+    html += `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">אין תורים בתאריך זה</div>
+        <div class="empty-sub">נסה תאריך אחר</div>
+      </div>
+    `;
+  }
+
+  document.getElementById('app').innerHTML = html;
+}
+
+function changeDate() {
+  const val = document.getElementById('datePicker')?.value;
+  if (val) {
+    selectedDate = val;
+    if (accessToken) loadAppointments();
+    else loadDemoData();
+  }
+}
+
+// ─── Demo data ────────────────────────────────────────────
+function loadDemoData() {
+  const target = getTargetDate();
+  const dateStr = target.toISOString().split('T')[0];
+  accessToken = '__DEMO__';
+
+  appointments = [
+    {
+      id: 'demo1',
+      name: 'שרה כהן',
+      treatments: 'טיפול 5',
+      phone: '0521234567',
+      birthday: '15/03/1990',
+      startTime: `${dateStr}T10:00:00`,
+    },
+    {
+      id: 'demo2',
+      name: 'דנה לוי',
+      treatments: 'טיפול 3',
+      phone: '0537654321',
+      birthday: null,
+      startTime: `${dateStr}T12:30:00`,
+    },
+    {
+      id: 'demo3',
+      name: 'רון אברהם',
+      treatments: 'טיפול 8',
+      phone: '0549876543',
+      birthday: '22/07/1985',
+      startTime: `${dateStr}T15:00:00`,
+    },
+  ];
+
+  renderAppointments();
+  showToast('מצב הדגמה — חבר Google Calendar לנתונים אמיתיים');
+}
+
+// ─── Helpers ──────────────────────────────────────────────
+function showError(msg) {
+  document.getElementById('app').innerHTML = `
+    <div class="error-msg">⚠️ ${msg}</div>
+    <button class="btn-auth" onclick="login()" style="margin-top:12px">נסה שוב</button>
+  `;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
