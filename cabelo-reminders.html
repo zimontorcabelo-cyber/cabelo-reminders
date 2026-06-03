@@ -335,7 +335,7 @@ async function loadAppointments() {
     const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
 
     const items1 = (data1.items || []).filter(e => e.summary && e.summary.trim() !== '.' && e.summary.trim() !== '');
-    const items2 = (data2.items || []).filter(e => e.summary && /0\d{9}/.test(e.summary));
+    const items2 = (data2.items || []).filter(e => e.summary && e.summary.trim() !== '.' && e.summary.trim() !== '');
 
     // מיזוג ללא כפילויות (לפי שם בלבד)
     const seen = new Set();
