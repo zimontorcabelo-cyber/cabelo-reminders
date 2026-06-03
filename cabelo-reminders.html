@@ -4,7 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CABELO | תזכורות לקוחות לא פעילים</title>
+<title>CABELO | מערכת תזכורות</title>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap');
 
@@ -21,6 +22,7 @@
     --orange: #e08840;
     --yellow: #c9a930;
     --green: #5ba05b;
+    --wa: #25d366;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,13 +32,13 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0;
   }
 
+  /* ── HEADER ── */
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 20px 32px;
+    padding: 16px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -45,81 +47,211 @@
     z-index: 100;
   }
 
-  .logo {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
+  .logo { font-size: 20px; font-weight: 700; letter-spacing: 4px; color: var(--accent); }
 
-  .header-info {
-    display: flex;
-    gap: 24px;
-    align-items: center;
-  }
+  .header-right { display: flex; align-items: center; gap: 16px; }
 
-  .stat-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-size: 13px;
-    color: var(--text2);
-  }
-
-  .stat-chip span {
-    color: var(--accent);
-    font-weight: 700;
-    font-size: 15px;
-    margin-right: 4px;
-  }
-
-  .update-date {
+  #google-status {
     font-size: 12px;
     color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  main {
-    padding: 32px;
-    max-width: 1400px;
-    margin: 0 auto;
+  #google-status .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text2);
   }
 
-  .page-title {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--text);
+  #google-status.connected .dot { background: var(--green); }
+  #google-status.connected { color: var(--green); }
+
+  .btn-google {
+    background: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
   }
 
-  .page-subtitle {
+  .btn-google:hover { background: #f0f0f0; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 28px;
+  }
+
+  .tab {
+    padding: 14px 24px;
     font-size: 14px;
+    font-weight: 500;
     color: var(--text2);
-    margin-bottom: 28px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
   }
 
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── MAIN ── */
+  main { padding: 28px; max-width: 1400px; margin: 0 auto; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .section-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+
+  /* ── DATE PICKER (תזכורות) ── */
+  .date-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .date-label { font-size: 13px; color: var(--text2); }
+
+  .date-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .date-input:focus { border-color: var(--accent); }
+
+  .btn-load {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    color: #000;
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-load:hover { background: var(--accent2); }
+
+  /* ── REMINDER CARDS ── */
+  .reminder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+
+  .reminder-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .reminder-card:hover { border-color: var(--accent); }
+  .reminder-card.sent { border-color: var(--green); opacity: 0.7; }
+
+  .card-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .card-treatments { font-size: 13px; color: var(--accent); margin-bottom: 10px; }
+  .card-time { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+
+  .card-actions { display: flex; gap: 10px; }
+
+  .wa-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(37,211,102,0.12);
+    border: 1px solid rgba(37,211,102,0.3);
+    color: var(--wa);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .wa-btn:hover { background: rgba(37,211,102,0.22); }
+
+  .sent-btn {
+    background: rgba(91,160,91,0.15);
+    border-color: rgba(91,160,91,0.3);
+    color: var(--green);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+    font-family: 'Heebo', sans-serif;
+    cursor: pointer;
+  }
+
+  /* ── EMPTY / LOADING / LOGIN STATES ── */
+  .state-box {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+  }
+
+  .state-box .icon { font-size: 48px; margin-bottom: 16px; }
+  .state-box h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+  .state-box p { font-size: 14px; line-height: 1.6; }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── INACTIVE TABLE ── */
   .controls {
     display: flex;
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
     align-items: center;
   }
 
   .search-box {
-    flex: 1;
-    min-width: 200px;
-    max-width: 340px;
+    flex: 1; min-width: 200px; max-width: 300px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 10px 16px;
+    padding: 9px 14px;
     color: var(--text);
     font-family: 'Heebo', sans-serif;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.2s;
   }
 
   .search-box:focus { border-color: var(--accent); }
@@ -129,7 +261,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 10px 18px;
+    padding: 9px 16px;
     color: var(--text2);
     font-family: 'Heebo', sans-serif;
     font-size: 13px;
@@ -140,13 +272,16 @@
   .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
   .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
 
-  .count-label {
-    margin-right: auto;
-    color: var(--text2);
-    font-size: 13px;
-  }
-
+  .count-label { margin-right: auto; font-size: 13px; color: var(--text2); }
   .count-label strong { color: var(--accent); }
+
+  .legend { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .dot-critical { background: var(--red); }
+  .dot-high { background: var(--orange); }
+  .dot-medium { background: var(--yellow); }
+  .dot-low { background: var(--green); }
 
   table {
     width: 100%;
@@ -157,65 +292,33 @@
     border: 1px solid var(--border);
   }
 
-  thead {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-  }
+  thead { background: var(--surface2); border-bottom: 1px solid var(--border); }
 
   thead th {
-    padding: 14px 16px;
+    padding: 12px 14px;
     text-align: right;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text2);
     letter-spacing: 0.5px;
     text-transform: uppercase;
     white-space: nowrap;
+    cursor: pointer;
   }
 
-  thead th.sort-col { cursor: pointer; }
-  thead th.sort-col:hover { color: var(--accent); }
+  thead th:hover { color: var(--accent); }
 
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.15s;
-  }
-
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: var(--surface2); }
 
-  tbody td {
-    padding: 13px 16px;
-    font-size: 14px;
-    color: var(--text);
-    white-space: nowrap;
-  }
-
-  .name-cell {
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .phone-cell {
-    color: var(--text2);
-    font-size: 13px;
-    direction: ltr;
-    text-align: right;
-  }
-
-  .phone-link {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 13px;
-  }
-
-  .phone-link:hover { text-decoration: underline; }
+  tbody td { padding: 12px 14px; font-size: 14px; white-space: nowrap; }
 
   .days-badge {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 3px 10px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
   }
 
@@ -224,84 +327,76 @@
   .days-medium   { background: rgba(201,169,48,0.15); color: var(--yellow); border: 1px solid rgba(201,169,48,0.3); }
   .days-low      { background: rgba(91,160,91,0.15); color: var(--green); border: 1px solid rgba(91,160,91,0.3); }
 
-  .visits-cell {
-    color: var(--text2);
-    font-size: 13px;
-  }
+  .phone-link { color: var(--accent); text-decoration: none; font-size: 13px; }
+  .phone-link:hover { text-decoration: underline; }
 
-  .wa-btn {
+  .wa-btn-sm {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(37,211,102,0.12);
-    border: 1px solid rgba(37,211,102,0.3);
-    color: #25d366;
+    gap: 5px;
+    background: rgba(37,211,102,0.1);
+    border: 1px solid rgba(37,211,102,0.28);
+    color: var(--wa);
     border-radius: 6px;
-    padding: 5px 12px;
+    padding: 5px 10px;
     font-size: 12px;
     font-weight: 600;
     text-decoration: none;
     font-family: 'Heebo', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
   }
 
-  .wa-btn:hover { background: rgba(37,211,102,0.2); }
+  .wa-btn-sm:hover { background: rgba(37,211,102,0.2); }
 
-  .empty-state {
-    text-align: center;
-    padding: 60px;
-    color: var(--text2);
-    font-size: 15px;
-  }
-
-  .legend {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--text2);
-  }
-
-  .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .dot-critical { background: var(--red); }
-  .dot-high { background: var(--orange); }
-  .dot-medium { background: var(--yellow); }
-  .dot-low { background: var(--green); }
-
-  @media (max-width: 768px) {
-    main { padding: 16px; }
-    header { padding: 16px; }
-    .header-info { gap: 12px; }
-    tbody td { font-size: 13px; padding: 10px 12px; }
-  }
+  .empty-state { text-align: center; padding: 50px; color: var(--text2); }
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">CABELO</div>
-  <div class="header-info">
-    <div class="stat-chip">לא פעילים: <span id="total-count">—</span></div>
-    <div class="update-date">עדכון: 03/06/2026</div>
+  <div class="header-right">
+    <div id="google-status">
+      <div class="dot"></div>
+      <span id="status-text">לא מחובר</span>
+    </div>
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      התחבר ל-Google Calendar
+    </button>
   </div>
 </header>
 
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('reminders', this)">📅 תזכורות לתורים קרובים</div>
+  <div class="tab" onclick="switchTab('inactive', this)">💤 לקוחות לא פעילים</div>
+</div>
+
+<!-- ═══════════════ TAB 1: REMINDERS ═══════════════ -->
 <main>
-  <h1 class="page-title">לקוחות לא פעילים</h1>
-  <p class="page-subtitle">לקוחות ללא תור עתידי ולא ביקרו ב-30 ימים האחרונים</p>
+<div id="tab-reminders" class="section active">
+  <h2 class="section-title">תזכורות לתורים קרובים</h2>
+  <p class="section-subtitle">שליחת תזכורת WhatsApp ללקוחות עם תור בתאריך שנבחר</p>
+
+  <div class="date-bar">
+    <span class="date-label">תאריך תורים:</span>
+    <input type="date" id="date-picker" class="date-input">
+    <button class="btn-load" onclick="loadAppointments()">טען תורים</button>
+    <button class="btn-load" style="background:var(--surface2);color:var(--text2);border:1px solid var(--border);" onclick="loadDemo()">הדגמה</button>
+  </div>
+
+  <div id="reminders-app">
+    <div class="state-box">
+      <div class="icon">📅</div>
+      <h3>התחבר ל-Google Calendar</h3>
+      <p>לחץ על "התחבר ל-Google Calendar" למעלה<br>ואז בחר תאריך וטען תורים</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB 2: INACTIVE ═══════════════ -->
+<div id="tab-inactive" class="section">
+  <h2 class="section-title">לקוחות לא פעילים</h2>
+  <p class="section-subtitle">לקוחות ללא תור עתידי שלא ביקרו ב-30 ימים האחרונים — עדכון: 03/06/2026</p>
 
   <div class="legend">
     <div class="legend-item"><div class="legend-dot dot-critical"></div> 180+ ימים</div>
@@ -311,37 +406,203 @@
   </div>
 
   <div class="controls">
-    <input class="search-box" type="text" id="search" placeholder="חיפוש לפי שם או טלפון..." oninput="filterTable()">
+    <input class="search-box" type="text" id="search" placeholder="חיפוש לפי שם או טלפון..." oninput="renderInactive()">
     <button class="filter-btn active" onclick="setFilter('all', this)">הכל</button>
-    <button class="filter-btn" onclick="setFilter('critical', this)">180+ ימים</button>
+    <button class="filter-btn" onclick="setFilter('critical', this)">180+</button>
     <button class="filter-btn" onclick="setFilter('high', this)">90–180</button>
     <button class="filter-btn" onclick="setFilter('medium', this)">60–90</button>
     <button class="filter-btn" onclick="setFilter('low', this)">30–60</button>
-    <span class="count-label">מוצגים: <strong id="visible-count">0</strong></span>
+    <span class="count-label">מוצגים: <strong id="visible-count">0</strong> מתוך <strong id="total-count">0</strong></span>
   </div>
 
   <table id="main-table">
     <thead>
       <tr>
         <th>#</th>
-        <th>שם</th>
+        <th onclick="sortInactive('name')">שם ↕</th>
         <th>טלפון</th>
-        <th class="sort-col" onclick="sortBy('last_visit')">ביקור אחרון ↕</th>
-        <th class="sort-col" onclick="sortBy('days_inactive')">ימי היעדרות ↕</th>
-        <th class="sort-col" onclick="sortBy('visits')">סה"כ ביקורים ↕</th>
+        <th onclick="sortInactive('last_visit_ts')">ביקור אחרון ↕</th>
+        <th onclick="sortInactive('days_inactive')">ימי היעדרות ↕</th>
+        <th onclick="sortInactive('visits')">ביקורים ↕</th>
         <th>WhatsApp</th>
       </tr>
     </thead>
     <tbody id="table-body"></tbody>
   </table>
+</div>
 </main>
 
 <script>
-const DATA = [{"name":"מאי דהן","phone":"0525306089","last_visit":"10/07/2025","days_inactive":327,"visits":17,"avg_bill":51.8},{"name":"אראל נוי","phone":"0528908686","last_visit":"11/07/2025","days_inactive":326,"visits":10,"avg_bill":0},{"name":"שושנה וורן","phone":"0587428665","last_visit":"11/07/2025","days_inactive":326,"visits":8,"avg_bill":0},{"name":"עוז נפתלי","phone":"0507909049","last_visit":"13/07/2025","days_inactive":324,"visits":8,"avg_bill":0},{"name":"קארין גל וזמן","phone":"0504042151","last_visit":"18/07/2025","days_inactive":319,"visits":2,"avg_bill":0},{"name":"רומי סברו","phone":"0506674773","last_visit":"20/07/2025","days_inactive":317,"visits":5,"avg_bill":0},{"name":"סופי מצקין","phone":"0545950803","last_visit":"22/07/2025","days_inactive":315,"visits":17,"avg_bill":0},{"name":"ליאור דליהו","phone":"0545915333","last_visit":"22/07/2025","days_inactive":315,"visits":1,"avg_bill":0},{"name":"מאי שלמה","phone":"0503403439","last_visit":"27/07/2025","days_inactive":310,"visits":17,"avg_bill":10.6},{"name":"דניאל  כהן","phone":"0545229346","last_visit":"29/07/2025","days_inactive":308,"visits":3,"avg_bill":0},{"name":"שירלי מזרחי","phone":"0506450018","last_visit":"01/08/2025","days_inactive":305,"visits":9,"avg_bill":0},{"name":"ענתי נקאש","phone":"0506010666","last_visit":"01/08/2025","days_inactive":305,"visits":11,"avg_bill":0},{"name":"ליאת אלקן","phone":"0528667731","last_visit":"03/08/2025","days_inactive":303,"visits":3,"avg_bill":0},{"name":"מוריה שורץ","phone":"0542997229","last_visit":"05/08/2025","days_inactive":301,"visits":1,"avg_bill":0},{"name":"מעיין בר","phone":"0545661018","last_visit":"10/08/2025","days_inactive":296,"visits":5,"avg_bill":0},{"name":"גלעד .","phone":"0502333996","last_visit":"12/08/2025","days_inactive":294,"visits":9,"avg_bill":0},{"name":"טליה אברג׳ל","phone":"0535308640","last_visit":"15/08/2025","days_inactive":291,"visits":8,"avg_bill":0},{"name":"מוריה .","phone":"0502673030","last_visit":"17/08/2025","days_inactive":289,"visits":1,"avg_bill":0},{"name":"אלי ליזרוביץ","phone":"0549444117","last_visit":"19/08/2025","days_inactive":287,"visits":8,"avg_bill":53.6},{"name":"מיכאלה איילין","phone":"0504216927","last_visit":"19/08/2025","days_inactive":287,"visits":6,"avg_bill":0},{"name":"גיא רפאל","phone":"0508724532","last_visit":"22/08/2025","days_inactive":284,"visits":20,"avg_bill":3.8},{"name":"קורל חדד","phone":"0547752995","last_visit":"24/08/2025","days_inactive":282,"visits":8,"avg_bill":0},{"name":"תומר חיילובסקי","phone":"0546560735","last_visit":"26/08/2025","days_inactive":280,"visits":7,"avg_bill":0},{"name":"ארנון חביב","phone":"0548181999","last_visit":"26/08/2025","days_inactive":280,"visits":2,"avg_bill":0},{"name":"בר חיון","phone":"0549331162","last_visit":"29/08/2025","days_inactive":277,"visits":4,"avg_bill":0},{"name":"דניאל אבדלינוב","phone":"0509555085","last_visit":"31/08/2025","days_inactive":275,"visits":20,"avg_bill":0},{"name":"ליאור כספי","phone":"0525312731","last_visit":"31/08/2025","days_inactive":275,"visits":10,"avg_bill":18.0},{"name":"שי ליאור","phone":"0522294078","last_visit":"02/09/2025","days_inactive":273,"visits":2,"avg_bill":0},{"name":"רותם טובול","phone":"0505645022","last_visit":"02/09/2025","days_inactive":273,"visits":3,"avg_bill":0},{"name":"מעיין ברזילי","phone":"0584332066","last_visit":"07/09/2025","days_inactive":268,"visits":9,"avg_bill":143.1},{"name":"לוסיה קאלבו","phone":"0532708063","last_visit":"11/09/2025","days_inactive":264,"visits":2,"avg_bill":0},{"name":"אנה ארגונוב","phone":"0502489494","last_visit":"12/09/2025","days_inactive":263,"visits":7,"avg_bill":28.6},{"name":"תמוז טובי","phone":"0543964398","last_visit":"14/09/2025","days_inactive":261,"visits":26,"avg_bill":8.5},{"name":"ליאור עמר","phone":"0542644066","last_visit":"15/09/2025","days_inactive":260,"visits":2,"avg_bill":0},{"name":"רעות פרנקו","phone":"0542199686","last_visit":"16/09/2025","days_inactive":259,"visits":14,"avg_bill":55.7},{"name":"אביטל שוורץ","phone":"0548326066","last_visit":"16/09/2025","days_inactive":259,"visits":9,"avg_bill":47.8},{"name":"עומר  בסיק","phone":"0504722390","last_visit":"16/09/2025","days_inactive":259,"visits":10,"avg_bill":0},{"name":"מיקה פיין","phone":"0547949980","last_visit":"19/09/2025","days_inactive":256,"visits":9,"avg_bill":0},{"name":"שחר כספי","phone":"0523276269","last_visit":"21/09/2025","days_inactive":254,"visits":10,"avg_bill":0},{"name":"יוסף .","phone":"0546722096","last_visit":"21/09/2025","days_inactive":254,"visits":1,"avg_bill":0},{"name":"אליאנה דרורי","phone":"0535222399","last_visit":"25/09/2025","days_inactive":250,"visits":14,"avg_bill":0},{"name":"Jonathan Gutmann","phone":"0585886268","last_visit":"26/09/2025","days_inactive":249,"visits":4,"avg_bill":0},{"name":"גל עפרוני","phone":"0508934033","last_visit":"26/09/2025","days_inactive":249,"visits":3,"avg_bill":0},{"name":"Ana Luisa Mansour","phone":"0533574752","last_visit":"26/09/2025","days_inactive":249,"visits":2,"avg_bill":0},{"name":"ג׳ס מיילין דה ורה","phone":"0548148197","last_visit":"28/09/2025","days_inactive":247,"visits":8,"avg_bill":0},{"name":"מיקה גולן","phone":"0558859156","last_visit":"28/09/2025","days_inactive":247,"visits":6,"avg_bill":0},{"name":"ורד גורא","phone":"0543104575","last_visit":"29/09/2025","days_inactive":246,"visits":3,"avg_bill":0},{"name":"זיו עמיר","phone":"0543971548","last_visit":"30/09/2025","days_inactive":245,"visits":20,"avg_bill":19.2},{"name":"יעל גורביץ","phone":"0542198079","last_visit":"30/09/2025","days_inactive":245,"visits":13,"avg_bill":0},{"name":"שי גפן","phone":"0525488200","last_visit":"30/09/2025","days_inactive":245,"visits":4,"avg_bill":0},{"name":"Yael Algranti","phone":"0557724300","last_visit":"30/09/2025","days_inactive":245,"visits":6,"avg_bill":0},{"name":"דותן זייפרט","phone":"0547377470","last_visit":"30/09/2025","days_inactive":245,"visits":1,"avg_bill":0},{"name":"לירז ברש","phone":"0546363378","last_visit":"03/10/2025","days_inactive":242,"visits":13,"avg_bill":0},{"name":"מאי שורץ","phone":"0542449315","last_visit":"03/10/2025","days_inactive":242,"visits":3,"avg_bill":0},{"name":"ליאור צרני","phone":"0542940288","last_visit":"05/10/2025","days_inactive":240,"visits":17,"avg_bill":25.2},{"name":"בתיה לולוי","phone":"0548770939","last_visit":"05/10/2025","days_inactive":240,"visits":6,"avg_bill":66.7},{"name":"ליהיא לוטנברג","phone":"0506347779","last_visit":"05/10/2025","days_inactive":240,"visits":3,"avg_bill":0},{"name":"קרן ערמוני דומני","phone":"0527360716","last_visit":"10/10/2025","days_inactive":235,"visits":4,"avg_bill":0},{"name":"אייל בנטולילה","phone":"0542293535","last_visit":"12/10/2025","days_inactive":233,"visits":4,"avg_bill":0},{"name":"אמילי חייק","phone":"0548916164","last_visit":"12/10/2025","days_inactive":233,"visits":1,"avg_bill":0},{"name":"טל גל","phone":"0544866227","last_visit":"17/10/2025","days_inactive":228,"visits":4,"avg_bill":0},{"name":"שירה מור","phone":"0507805553","last_visit":"19/10/2025","days_inactive":226,"visits":3,"avg_bill":0},{"name":"דורין סלק","phone":"0524641748","last_visit":"21/10/2025","days_inactive":224,"visits":1,"avg_bill":0},{"name":"נטליה גורנשטיין","phone":"0548999489","last_visit":"24/10/2025","days_inactive":221,"visits":13,"avg_bill":0},{"name":"שירה בר אשר","phone":"0528856516","last_visit":"24/10/2025","days_inactive":221,"visits":14,"avg_bill":0},{"name":"דויד .","phone":"0525556871","last_visit":"28/10/2025","days_inactive":217,"visits":2,"avg_bill":0},{"name":"שרון ליבובסקי","phone":"0545803306","last_visit":"31/10/2025","days_inactive":214,"visits":1,"avg_bill":0},{"name":"נועם לוי","phone":"0544871589","last_visit":"02/11/2025","days_inactive":212,"visits":4,"avg_bill":0},{"name":"עדי גלזר","phone":"0545919049","last_visit":"02/11/2025","days_inactive":212,"visits":2,"avg_bill":0},{"name":"דני .","phone":"0533108954","last_visit":"02/11/2025","days_inactive":212,"visits":1,"avg_bill":0},{"name":"רוני בוסתנאי","phone":"","last_visit":"04/11/2025","days_inactive":210,"visits":6,"avg_bill":0},{"name":"נדב קובסניאנו","phone":"0509640505","last_visit":"04/11/2025","days_inactive":210,"visits":4,"avg_bill":0},{"name":"נוריה כהן","phone":"0505265026","last_visit":"06/11/2025","days_inactive":208,"visits":2,"avg_bill":0},{"name":"שייה .","phone":"0524068882","last_visit":"06/11/2025","days_inactive":208,"visits":1,"avg_bill":0},{"name":"נועה יחיאב","phone":"0547935851","last_visit":"07/11/2025","days_inactive":207,"visits":9,"avg_bill":0},{"name":"אשרף נורי ","phone":"0547601996","last_visit":"09/11/2025","days_inactive":205,"visits":2,"avg_bill":0},{"name":"נועה עוז","phone":"0545502327","last_visit":"09/11/2025","days_inactive":205,"visits":2,"avg_bill":0},{"name":"מיכל שרגר","phone":"0544331134","last_visit":"11/11/2025","days_inactive":203,"visits":11,"avg_bill":0},{"name":"דניאל מיכליק","phone":"0547910925","last_visit":"11/11/2025","days_inactive":203,"visits":1,"avg_bill":0},{"name":"שרון פרנקו","phone":"0539239003","last_visit":"11/11/2025","days_inactive":203,"visits":1,"avg_bill":0},{"name":"סשה רובין","phone":"0522151594","last_visit":"13/11/2025","days_inactive":201,"visits":12,"avg_bill":0},{"name":"בן הראלי","phone":"0584748589","last_visit":"13/11/2025","days_inactive":201,"visits":11,"avg_bill":0.1},{"name":"דודו קובסניאנו","phone":"0506206203","last_visit":"13/11/2025","days_inactive":201,"visits":6,"avg_bill":0},{"name":"יהורם מלמד","phone":"0527730685","last_visit":"16/11/2025","days_inactive":198,"visits":2,"avg_bill":0},{"name":"איתי חניה","phone":"0528916917","last_visit":"18/11/2025","days_inactive":196,"visits":6,"avg_bill":0},{"name":"Lotan Eny","phone":"0544773671","last_visit":"19/11/2025","days_inactive":195,"visits":1,"avg_bill":0},{"name":"שירה שטורם","phone":"0523913399","last_visit":"21/11/2025","days_inactive":193,"visits":13,"avg_bill":0},{"name":"די סרהי טאו","phone":"0506818842","last_visit":"23/11/2025","days_inactive":191,"visits":3,"avg_bill":0},{"name":"איב לבקובסקי","phone":"0503131400","last_visit":"25/11/2025","days_inactive":189,"visits":18,"avg_bill":21.4},{"name":"לירון שמשון","phone":"0503778707","last_visit":"25/11/2025","days_inactive":189,"visits":14,"avg_bill":30.6},{"name":"אתי ברקוביץ","phone":"0502203537","last_visit":"28/11/2025","days_inactive":186,"visits":13,"avg_bill":9.2},{"name":"זיו סבן","phone":"0547190105","last_visit":"28/11/2025","days_inactive":186,"visits":10,"avg_bill":0},{"name":"נטע לניאדו","phone":"0542279786","last_visit":"28/11/2025","days_inactive":186,"visits":3,"avg_bill":0},{"name":"גיא סלר","phone":"0526154101","last_visit":"28/11/2025","days_inactive":186,"visits":1,"avg_bill":0},{"name":"שחר קארו","phone":"0539948365","last_visit":"02/12/2025","days_inactive":182,"visits":6,"avg_bill":0},{"name":"טליה .","phone":"0542420522","last_visit":"04/12/2025","days_inactive":180,"visits":1,"avg_bill":0},{"name":"מור שילוח","phone":"0509054008","last_visit":"05/12/2025","days_inactive":179,"visits":2,"avg_bill":0},{"name":"גילי .","phone":"0523033333","last_visit":"05/12/2025","days_inactive":179,"visits":1,"avg_bill":0},{"name":"קייט יורקובה","phone":"0545955116","last_visit":"07/12/2025","days_inactive":177,"visits":15,"avg_bill":60.0},{"name":"רווח שלומית","phone":"0546270787","last_visit":"07/12/2025","days_inactive":177,"visits":2,"avg_bill":0},{"name":"שיר לביא","phone":"0543131521","last_visit":"09/12/2025","days_inactive":175,"visits":1,"avg_bill":0},{"name":"כפיר סברו","phone":"0543189834","last_visit":"12/12/2025","days_inactive":172,"visits":9,"avg_bill":0},{"name":"דריה שרץ","phone":"0503020431","last_visit":"12/12/2025","days_inactive":172,"visits":3,"avg_bill":0},{"name":"אלמה  .","phone":"0547179131","last_visit":"14/12/2025","days_inactive":170,"visits":6,"avg_bill":0},{"name":"licol z","phone":"0515452499","last_visit":"19/12/2025","days_inactive":165,"visits":1,"avg_bill":0},{"name":"רון כהן","phone":"0522800007","last_visit":"23/12/2025","days_inactive":161,"visits":17,"avg_bill":25.2},{"name":"מתן בן דוד","phone":"0524662947","last_visit":"23/12/2025","days_inactive":161,"visits":3,"avg_bill":0},{"name":"לילך ג","phone":"0523665729","last_visit":"23/12/2025","days_inactive":161,"visits":1,"avg_bill":0},{"name":"עמית אדרי","phone":"0548347112","last_visit":"25/12/2025","days_inactive":159,"visits":9,"avg_bill":0},{"name":"עומר רייכמן","phone":"0537361190","last_visit":"25/12/2025","days_inactive":159,"visits":1,"avg_bill":0},{"name":"עומר בן שלמה","phone":"0546808238","last_visit":"25/12/2025","days_inactive":159,"visits":1,"avg_bill":0},{"name":"Camila .","phone":"0506995492","last_visit":"25/12/2025","days_inactive":159,"visits":1,"avg_bill":0},{"name":"קרן נאור","phone":"0502021990","last_visit":"26/12/2025","days_inactive":158,"visits":4,"avg_bill":0},{"name":"מיה גדות","phone":"0523376309","last_visit":"26/12/2025","days_inactive":158,"visits":1,"avg_bill":0},{"name":"תהילה אהרון","phone":"0533362689","last_visit":"28/12/2025","days_inactive":156,"visits":2,"avg_bill":0},{"name":"עמית דדון","phone":"0542029927","last_visit":"30/12/2025","days_inactive":154,"visits":15,"avg_bill":0},{"name":"מאיה שפירא","phone":"","last_visit":"01/01/2026","days_inactive":152,"visits":9,"avg_bill":0},{"name":"מומי .","phone":"0546094684","last_visit":"02/01/2026","days_inactive":151,"visits":1,"avg_bill":0},{"name":"סהר מינה","phone":"0525105109","last_visit":"08/01/2026","days_inactive":145,"visits":10,"avg_bill":0},{"name":"נועה דליהו","phone":"0504400761","last_visit":"15/01/2026","days_inactive":138,"visits":12,"avg_bill":0},{"name":"נוריה כהן","phone":"0505265026","last_visit":"15/01/2026","days_inactive":138,"visits":3,"avg_bill":0},{"name":"נועה דחבש","phone":"0546970202","last_visit":"15/01/2026","days_inactive":138,"visits":2,"avg_bill":0},{"name":"דור חדד","phone":"0549061212","last_visit":"16/01/2026","days_inactive":137,"visits":3,"avg_bill":0},{"name":"בני .","phone":"0542113240","last_visit":"18/01/2026","days_inactive":135,"visits":5,"avg_bill":0},{"name":"ליאנה וקסלר","phone":"0504082514","last_visit":"18/01/2026","days_inactive":135,"visits":1,"avg_bill":0},{"name":"דורון שניר","phone":"0505758769","last_visit":"20/01/2026","days_inactive":133,"visits":1,"avg_bill":0},{"name":"אריאל רובין","phone":"0543215337","last_visit":"23/01/2026","days_inactive":130,"visits":9,"avg_bill":0},{"name":"נועה מזרחי","phone":"0528545198","last_visit":"23/01/2026","days_inactive":130,"visits":5,"avg_bill":0},{"name":"נועם רחני","phone":"0526384395","last_visit":"25/01/2026","days_inactive":128,"visits":1,"avg_bill":0},{"name":"רינת דחבש","phone":"0543001089","last_visit":"27/01/2026","days_inactive":126,"visits":5,"avg_bill":0},{"name":"רוני קידר","phone":"0542630903","last_visit":"27/01/2026","days_inactive":126,"visits":1,"avg_bill":0},{"name":"SORANYI .","phone":"0549026977","last_visit":"27/01/2026","days_inactive":126,"visits":1,"avg_bill":0},{"name":"מעיין אפרמיאן","phone":"0533328601","last_visit":"30/01/2026","days_inactive":123,"visits":22,"avg_bill":139.1},{"name":"אופיר נקאש","phone":"0503321166","last_visit":"30/01/2026","days_inactive":123,"visits":13,"avg_bill":0},{"name":"שי בר","phone":"0528270291","last_visit":"30/01/2026","days_inactive":123,"visits":6,"avg_bill":0},{"name":"תהל אלבז","phone":"0509016511","last_visit":"30/01/2026","days_inactive":123,"visits":2,"avg_bill":0},{"name":"עדן בואזיז","phone":"0533390977","last_visit":"30/01/2026","days_inactive":123,"visits":2,"avg_bill":0},{"name":"mimi .","phone":"0535882388","last_visit":"03/02/2026","days_inactive":119,"visits":5,"avg_bill":0},{"name":"הילה חזמה","phone":"0542462629","last_visit":"08/02/2026","days_inactive":114,"visits":1,"avg_bill":0},{"name":"יובל רוזן","phone":"0546226414","last_visit":"10/02/2026","days_inactive":112,"visits":10,"avg_bill":0},{"name":"אילנה .","phone":"0585613691","last_visit":"10/02/2026","days_inactive":112,"visits":3,"avg_bill":0},{"name":"רואי לאון","phone":"0526969724","last_visit":"10/02/2026","days_inactive":112,"visits":2,"avg_bill":0},{"name":"Odeya Moosie","phone":"0504091237","last_visit":"10/02/2026","days_inactive":112,"visits":1,"avg_bill":0},{"name":"היילי  רפאלי","phone":"0544863567","last_visit":"11/02/2026","days_inactive":111,"visits":1,"avg_bill":1200.0},{"name":"אלה ביטון","phone":"0502244257","last_visit":"13/02/2026","days_inactive":109,"visits":1,"avg_bill":0},{"name":"אליה אוחנה","phone":"0524068883","last_visit":"15/02/2026","days_inactive":107,"visits":6,"avg_bill":0},{"name":"mila tawil","phone":"0543935500","last_visit":"15/02/2026","days_inactive":107,"visits":8,"avg_bill":0},{"name":"דוד אסרף","phone":"0524177117","last_visit":"15/02/2026","days_inactive":107,"visits":1,"avg_bill":0},{"name":"דותן ","phone":"0502688856","last_visit":"15/02/2026","days_inactive":107,"visits":1,"avg_bill":0},{"name":"איתי לוירון","phone":"0544782343","last_visit":"17/02/2026","days_inactive":105,"visits":3,"avg_bill":0},{"name":"תמר צור","phone":"0542030221","last_visit":"20/02/2026","days_inactive":102,"visits":10,"avg_bill":42.9},{"name":"מאי מירב","phone":"0547482124","last_visit":"22/02/2026","days_inactive":100,"visits":14,"avg_bill":0},{"name":"נויה .","phone":"0538286111","last_visit":"24/02/2026","days_inactive":98,"visits":3,"avg_bill":0},{"name":"Danielle Saban","phone":"0542283083","last_visit":"24/02/2026","days_inactive":98,"visits":1,"avg_bill":0},{"name":"Thais Gandelman Schtruk","phone":"0534335344","last_visit":"24/02/2026","days_inactive":98,"visits":1,"avg_bill":0},{"name":"אולגה צ׳עדייב","phone":"0587809992","last_visit":"27/02/2026","days_inactive":95,"visits":2,"avg_bill":0},{"name":"עמית מרקוביץ","phone":"0524202621","last_visit":"10/03/2026","days_inactive":84,"visits":12,"avg_bill":33.3},{"name":"עומר מירכור","phone":"0545478920","last_visit":"10/03/2026","days_inactive":84,"visits":2,"avg_bill":0},{"name":"שיר מיכאלי","phone":"0533362221","last_visit":"10/03/2026","days_inactive":84,"visits":1,"avg_bill":0},{"name":"Maya m","phone":"0535554050","last_visit":"13/03/2026","days_inactive":81,"visits":1,"avg_bill":0},{"name":"מיקה מימון","phone":"0549771018","last_visit":"15/03/2026","days_inactive":79,"visits":16,"avg_bill":26.8},{"name":"שנל עגמי","phone":"0503831629","last_visit":"15/03/2026","days_inactive":79,"visits":3,"avg_bill":0},{"name":"רחלי ברזילי","phone":"0504332066","last_visit":"17/03/2026","days_inactive":77,"visits":4,"avg_bill":0},{"name":"יוני .","phone":"0526003297","last_visit":"19/03/2026","days_inactive":75,"visits":3,"avg_bill":0},{"name":"זיו צרני","phone":"0535258135","last_visit":"20/03/2026","days_inactive":74,"visits":18,"avg_bill":0},{"name":"אושרי טו","phone":"0545959100","last_visit":"20/03/2026","days_inactive":74,"visits":19,"avg_bill":0},{"name":"ניקול שבצ׳וק","phone":"0532479223","last_visit":"20/03/2026","days_inactive":74,"visits":1,"avg_bill":0},{"name":"רינת כליף","phone":"0587464355","last_visit":"22/03/2026","days_inactive":72,"visits":6,"avg_bill":0},{"name":"אלון פרחי","phone":"0544226952","last_visit":"22/03/2026","days_inactive":72,"visits":4,"avg_bill":0},{"name":"יינון .","phone":"0523246616","last_visit":"26/03/2026","days_inactive":68,"visits":4,"avg_bill":0},{"name":"Paras Rizal","phone":"0538935112","last_visit":"27/03/2026","days_inactive":67,"visits":3,"avg_bill":0},{"name":"דורין יחזקאל","phone":"0549253938","last_visit":"27/03/2026","days_inactive":67,"visits":3,"avg_bill":0},{"name":"ליהי טולדנו","phone":"0535315669","last_visit":"27/03/2026","days_inactive":67,"visits":1,"avg_bill":0},{"name":"Ella Goldberg","phone":"0502534843","last_visit":"27/03/2026","days_inactive":67,"visits":2,"avg_bill":0},{"name":"נועה חנסב","phone":"0545745636","last_visit":"29/03/2026","days_inactive":65,"visits":20,"avg_bill":108.0},{"name":"דינה בן אריה","phone":"0547125084","last_visit":"29/03/2026","days_inactive":65,"visits":8,"avg_bill":0},{"name":"גאיה בן מאיר","phone":"0523722760","last_visit":"29/03/2026","days_inactive":65,"visits":7,"avg_bill":0},{"name":"טליה כליף","phone":"0549200470","last_visit":"29/03/2026","days_inactive":65,"visits":3,"avg_bill":0},{"name":"Kira Berman","phone":"0529574061","last_visit":"29/03/2026","days_inactive":65,"visits":1,"avg_bill":0},{"name":"סימה שלי","phone":"0507121270","last_visit":"01/04/2026","days_inactive":62,"visits":12,"avg_bill":0},{"name":"שירי דבי","phone":"0504599904","last_visit":"01/04/2026","days_inactive":62,"visits":1,"avg_bill":0},{"name":"רוית סולמי","phone":"0505758030","last_visit":"01/04/2026","days_inactive":62,"visits":1,"avg_bill":0},{"name":"ליר .","phone":"0524448437","last_visit":"03/04/2026","days_inactive":60,"visits":2,"avg_bill":0},{"name":"אלון ק","phone":"0528022297","last_visit":"05/04/2026","days_inactive":58,"visits":5,"avg_bill":0},{"name":"עופר יעוז","phone":"0523059966","last_visit":"05/04/2026","days_inactive":58,"visits":5,"avg_bill":0},{"name":"גל ג׳קסון","phone":"0549444343","last_visit":"05/04/2026","days_inactive":58,"visits":2,"avg_bill":0},{"name":"אנה שור","phone":"0526904932","last_visit":"05/04/2026","days_inactive":58,"visits":2,"avg_bill":0},{"name":"אביב מיכאלי","phone":"0525244100","last_visit":"05/04/2026","days_inactive":58,"visits":1,"avg_bill":0},{"name":"טל ברק","phone":"0552419414","last_visit":"07/04/2026","days_inactive":56,"visits":22,"avg_bill":0},{"name":"רוני עזרא","phone":"0542194066","last_visit":"07/04/2026","days_inactive":56,"visits":3,"avg_bill":0},{"name":"מאיה .","phone":"0535554050","last_visit":"07/04/2026","days_inactive":56,"visits":1,"avg_bill":0},{"name":"מעוז כהן","phone":"0548717202","last_visit":"10/04/2026","days_inactive":53,"visits":1,"avg_bill":0},{"name":"נטע-לי סטרונגין","phone":"0535295401","last_visit":"14/04/2026","days_inactive":49,"visits":16,"avg_bill":0},{"name":"מיתר פרידמן","phone":"0547532434","last_visit":"14/04/2026","days_inactive":49,"visits":22,"avg_bill":0},{"name":"דניאל ים","phone":"0542133402","last_visit":"14/04/2026","days_inactive":49,"visits":19,"avg_bill":0.1},{"name":"נטע מלחי","phone":"0507603038","last_visit":"14/04/2026","days_inactive":49,"visits":6,"avg_bill":0},{"name":"ליזה קליין","phone":"0585552244","last_visit":"14/04/2026","days_inactive":49,"visits":4,"avg_bill":0},{"name":"צוף אבטבי","phone":"0542142611","last_visit":"16/04/2026","days_inactive":47,"visits":6,"avg_bill":0},{"name":"גלעד שחם","phone":"0526060576","last_visit":"17/04/2026","days_inactive":46,"visits":16,"avg_bill":0},{"name":"יובל פלג","phone":"0524410655","last_visit":"17/04/2026","days_inactive":46,"visits":12,"avg_bill":0},{"name":"אבי מצלאוי","phone":"0504430400","last_visit":"17/04/2026","days_inactive":46,"visits":14,"avg_bill":0},{"name":"לימור לוז","phone":"0528624449","last_visit":"17/04/2026","days_inactive":46,"visits":7,"avg_bill":0},{"name":"דניאל .","phone":"0508181361","last_visit":"17/04/2026","days_inactive":46,"visits":3,"avg_bill":0},{"name":"גאיה צור","phone":"0546878293","last_visit":"18/04/2026","days_inactive":45,"visits":9,"avg_bill":0},{"name":"רננה חזי גיספן","phone":"0524418543","last_visit":"19/04/2026","days_inactive":44,"visits":10,"avg_bill":0},{"name":"נועה חביב","phone":"0543977970","last_visit":"19/04/2026","days_inactive":44,"visits":8,"avg_bill":0},{"name":"יובל גור אריה","phone":"0543381811","last_visit":"19/04/2026","days_inactive":44,"visits":6,"avg_bill":0},{"name":"Ifat Okanin","phone":"0523732383","last_visit":"19/04/2026","days_inactive":44,"visits":1,"avg_bill":0},{"name":"ליאור אביטבול","phone":"0527361288","last_visit":"21/04/2026","days_inactive":42,"visits":5,"avg_bill":0},{"name":"אוריאן כהן","phone":"0523401420","last_visit":"21/04/2026","days_inactive":42,"visits":5,"avg_bill":0},{"name":"שיר משען","phone":"0524024252","last_visit":"24/04/2026","days_inactive":39,"visits":22,"avg_bill":19.5},{"name":"נטע אגיוף","phone":"0503831138","last_visit":"24/04/2026","days_inactive":39,"visits":9,"avg_bill":0},{"name":"עידן שילוח","phone":"0509054009","last_visit":"24/04/2026","days_inactive":39,"visits":3,"avg_bill":0},{"name":"יהודה קרויזר","phone":"0505762096","last_visit":"26/04/2026","days_inactive":37,"visits":12,"avg_bill":0},{"name":"Di Lu","phone":"0584567551","last_visit":"26/04/2026","days_inactive":37,"visits":1,"avg_bill":0},{"name":"אוסנת מילר","phone":"0522748999","last_visit":"27/04/2026","days_inactive":36,"visits":7,"avg_bill":0.1},{"name":"אלה אורנשטיין","phone":"0523393986","last_visit":"28/04/2026","days_inactive":35,"visits":19,"avg_bill":0},{"name":"הילי קופרפיש","phone":"0547402724","last_visit":"28/04/2026","days_inactive":35,"visits":7,"avg_bill":0},{"name":"שגיא בן דוד","phone":"0523206440","last_visit":"28/04/2026","days_inactive":35,"visits":2,"avg_bill":0},{"name":"איזבל סגנובסקי","phone":"0526245096","last_visit":"28/04/2026","days_inactive":35,"visits":1,"avg_bill":0},{"name":"שירלי גאבר","phone":"0542500605","last_visit":"29/04/2026","days_inactive":34,"visits":8,"avg_bill":0},{"name":"אילה נאור נתן","phone":"0548326611","last_visit":"30/04/2026","days_inactive":33,"visits":12,"avg_bill":0},{"name":"ניסים פרץ","phone":"0542050746","last_visit":"01/05/2026","days_inactive":32,"visits":4,"avg_bill":0},{"name":"ירדן ריינר","phone":"0504442575","last_visit":"01/05/2026","days_inactive":32,"visits":3,"avg_bill":0},{"name":"סימונה לוין","phone":"0546336723","last_visit":"01/05/2026","days_inactive":32,"visits":2,"avg_bill":0},{"name":"לייה ימיני","phone":"0542649926","last_visit":"01/05/2026","days_inactive":32,"visits":1,"avg_bill":0},{"name":"יאיר דניאל","phone":"0547332000","last_visit":"01/05/2026","days_inactive":32,"visits":2,"avg_bill":0},{"name":"הודא חטיב","phone":"0542256694","last_visit":"01/05/2026","days_inactive":32,"visits":1,"avg_bill":0},{"name":"נועה בוכמן","phone":"0528802811","last_visit":"03/05/2026","days_inactive":30,"visits":9,"avg_bill":0},{"name":"בתיה לולוי","phone":"0532091074","last_visit":"03/05/2026","days_inactive":30,"visits":5,"avg_bill":0},{"name":"טל אילן","phone":"0503481130","last_visit":"03/05/2026","days_inactive":30,"visits":6,"avg_bill":0},{"name":"מור פיינה","phone":"0538507120","last_visit":"03/05/2026","days_inactive":30,"visits":2,"avg_bill":0},{"name":"סטיבן מועלם","phone":"0524395161","last_visit":"03/05/2026","days_inactive":30,"visits":1,"avg_bill":0},{"name":"רפי שטיינר","phone":"0527927504","last_visit":"03/05/2026","days_inactive":30,"visits":1,"avg_bill":0}];
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+const BOOKING_LINK = 'https://schedule.easybizy.net/cabelo';
+const CLIENT_ID = '551628662367-eafngulot33vkge2gc8f5pnqinllff0c.apps.googleusercontent.com'; // הכנס כאן את ה-Google Client ID שלך
+const DAYS_AHEAD = 2; // ברירת מחדל: יומיים קדימה
 
-let currentFilter = 'all';
-let currentSort = { col: 'days_inactive', dir: -1 };
-let filtered = [...DATA];
+// ═══════════════════════════════════════════════
+// GOOGLE AUTH
+// ═══════════════════════════════════════════════
+let tokenClient, accessToken = null;
+
+window.onload = () => {
+  // wait for google to be ready
+  if (typeof google === "undefined") {
+    setTimeout(() => window.onload(), 500);
+    return;
+  }
+  // Set default date to 2 days from now
+  const d = new Date();
+  d.setDate(d.getDate() + DAYS_AHEAD);
+  document.getElementById('date-picker').value = d.toISOString().split('T')[0];
+
+  renderInactive();
+
+  if (!CLIENT_ID) return;
+
+  google.accounts.id.initialize({ client_id: CLIENT_ID });
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    callback: (resp) => {
+      if (resp.access_token) {
+        accessToken = resp.access_token;
+        document.getElementById('google-status').className = 'connected';
+        document.getElementById('status-text').textContent = 'מחובר ל-Google Calendar';
+        loadAppointments();
+      }
+    }
+  });
+};
+
+function loginGoogle() {
+  if (!CLIENT_ID) {
+    alert('יש להכניס Google Client ID בקוד (משתנה CLIENT_ID)');
+    return;
+  }
+  tokenClient.requestAccessToken({ prompt: '' });
+}
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+function switchTab(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+// TAB 1 — REMINDERS
+// ═══════════════════════════════════════════════
+let appointments = [];
+
+async function loadAppointments() {
+  if (!accessToken) {
+    alert('יש להתחבר ל-Google Calendar תחילה');
+    return;
+  }
+  document.getElementById('reminders-app').innerHTML = '<div class="state-box"><div class="spinner"></div><p>טוען תורים...</p></div>';
+  const dateVal = document.getElementById('date-picker').value;
+  const target = dateVal ? new Date(dateVal) : (() => { const d = new Date(); d.setDate(d.getDate() + DAYS_AHEAD); return d; })();
+  const start = new Date(target); start.setHours(0,0,0,0);
+  const end   = new Date(target); end.setHours(23,59,59,999);
+
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=50`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    const data = await res.json();
+    appointments = (data.items || []).filter(e => e.summary && /0\d{9}/.test(e.summary)).map(parseEvent);
+    renderReminders();
+  } catch (e) {
+    document.getElementById('reminders-app').innerHTML = '<div class="state-box"><div class="icon">⚠️</div><h3>שגיאה בטעינה</h3><p>נסה שוב</p></div>';
+  }
+}
+
+function parseEvent(e) {
+  const parts = (e.summary || '').split('|').map(s => s.trim());
+  const phone = (parts[2] || '').replace(/\D/g, '');
+  return {
+    id: e.id,
+    name: parts[0] || '',
+    treatments: parts[1] || '',
+    phone,
+    startTime: e.start?.dateTime || e.start?.date
+  };
+}
+
+function formatDateHE(dateStr) {
+  const d = new Date(dateStr);
+  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+  const months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  return `יום ${days[d.getDay()]}, ${d.getDate()} ב${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatTime(dateStr) {
+  return new Date(dateStr).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function buildReminderMsg(appt) {
+  const dayStr = formatDateHE(appt.startTime);
+  const timeStr = formatTime(appt.startTime);
+  return `שלום ${appt.name} 😊\n\nרצינו להזכיר לך שיש לך תור ב-CABELO:\n📅 ${dayStr}\n🕐 שעה ${timeStr}\n\nלשינוי מועד התור:\n🔗 ${BOOKING_LINK}\n\nנשמח לראותך! 💛\nנא אשר/י קבלת ההודעה 🙏`;
+}
+
+const sentSet = new Set();
+
+function renderReminders() {
+  const app = document.getElementById('reminders-app');
+  if (appointments.length === 0) {
+    app.innerHTML = '<div class="state-box"><div class="icon">🎉</div><h3>אין תורים בתאריך זה</h3><p>נסה תאריך אחר</p></div>';
+    return;
+  }
+  app.innerHTML = `<div class="reminder-grid">${appointments.map(a => {
+    const isSent = sentSet.has(a.id);
+    const phone = a.phone ? a.phone.replace(/^0/, '972') : '';
+    const msg = encodeURIComponent(buildReminderMsg(a));
+    return `
+    <div class="reminder-card${isSent ? ' sent' : ''}" id="card-${a.id}">
+      <div class="card-name">${a.name}</div>
+      ${a.treatments ? `<div class="card-treatments">${a.treatments}</div>` : ''}
+      <div class="card-time">🕐 ${formatTime(a.startTime)}</div>
+      <div class="card-actions">
+        ${phone
+          ? `<a class="wa-btn" href="https://wa.me/${phone}?text=${msg}" target="_blank" onclick="markSent('${a.id}')">📲 שלח תזכורת</a>`
+          : `<span style="color:var(--text2);font-size:13px">אין טלפון</span>`
+        }
+        <button class="sent-btn" onclick="markSent('${a.id}')">${isSent ? '✓ נשלח' : 'סמן כנשלח'}</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function markSent(id) {
+  sentSet.add(id);
+  document.getElementById('card-' + id)?.classList.add('sent');
+  const btn = document.querySelector(`#card-${id} .sent-btn`);
+  if (btn) btn.textContent = '✓ נשלח';
+}
+
+function loadDemo() {
+  const dateVal = document.getElementById('date-picker').value || new Date().toISOString().split('T')[0];
+  appointments = [
+    { id: 'd1', name: 'נועה כהן', treatments: 'רגליים | גב', phone: '0541234567', startTime: `${dateVal}T10:00:00` },
+    { id: 'd2', name: 'יובל לוי', treatments: 'פנים', phone: '0537654321', startTime: `${dateVal}T11:30:00` },
+    { id: 'd3', name: 'שירה מזרחי', treatments: 'ביקיני | שחי', phone: '0549876543', startTime: `${dateVal}T13:00:00` },
+  ];
+  renderReminders();
+}
+
+// ═══════════════════════════════════════════════
+// TAB 2 — INACTIVE
+// ═══════════════════════════════════════════════
+const INACTIVE_DATA = [{"name":"מאי דהן","phone":"0525306089","last_visit":"10/07/2025","days_inactive":327,"visits":17},{"name":"אראל נוי","phone":"0528908686","last_visit":"11/07/2025","days_inactive":326,"visits":10},{"name":"שושנה וורן","phone":"0587428665","last_visit":"11/07/2025","days_inactive":326,"visits":8},{"name":"עוז נפתלי","phone":"0507909049","last_visit":"13/07/2025","days_inactive":324,"visits":8},{"name":"קארין גל וזמן","phone":"0504042151","last_visit":"18/07/2025","days_inactive":319,"visits":2},{"name":"רומי סברו","phone":"0506674773","last_visit":"20/07/2025","days_inactive":317,"visits":5},{"name":"סופי מצקין","phone":"0545950803","last_visit":"22/07/2025","days_inactive":315,"visits":17},{"name":"ליאור דליהו","phone":"0545915333","last_visit":"22/07/2025","days_inactive":315,"visits":1},{"name":"מאי שלמה","phone":"0503403439","last_visit":"27/07/2025","days_inactive":310,"visits":17},{"name":"דניאל כהן","phone":"0545229346","last_visit":"29/07/2025","days_inactive":308,"visits":3},{"name":"שירלי מזרחי","phone":"0506450018","last_visit":"01/08/2025","days_inactive":305,"visits":9},{"name":"ענתי נקאש","phone":"0506010666","last_visit":"01/08/2025","days_inactive":305,"visits":11},{"name":"ליאת אלקן","phone":"0528667731","last_visit":"03/08/2025","days_inactive":303,"visits":3},{"name":"מוריה שורץ","phone":"0542997229","last_visit":"05/08/2025","days_inactive":301,"visits":1},{"name":"מעיין בר","phone":"0545661018","last_visit":"10/08/2025","days_inactive":296,"visits":5},{"name":"גלעד .","phone":"0502333996","last_visit":"12/08/2025","days_inactive":294,"visits":9},{"name":"טליה אברגל","phone":"0535308640","last_visit":"15/08/2025","days_inactive":291,"visits":8},{"name":"מוריה .","phone":"0502673030","last_visit":"17/08/2025","days_inactive":289,"visits":1},{"name":"אלי ליזרוביץ","phone":"0549444117","last_visit":"19/08/2025","days_inactive":287,"visits":8},{"name":"מיכאלה איילין","phone":"0504216927","last_visit":"19/08/2025","days_inactive":287,"visits":6},{"name":"גיא רפאל","phone":"0508724532","last_visit":"22/08/2025","days_inactive":284,"visits":20},{"name":"קורל חדד","phone":"0547752995","last_visit":"24/08/2025","days_inactive":282,"visits":8},{"name":"תומר חיילובסקי","phone":"0546560735","last_visit":"26/08/2025","days_inactive":280,"visits":7},{"name":"ארנון חביב","phone":"0548181999","last_visit":"26/08/2025","days_inactive":280,"visits":2},{"name":"בר חיון","phone":"0549331162","last_visit":"29/08/2025","days_inactive":277,"visits":4},{"name":"דניאל אבדלינוב","phone":"0509555085","last_visit":"31/08/2025","days_inactive":275,"visits":20},{"name":"ליאור כספי","phone":"0525312731","last_visit":"31/08/2025","days_inactive":275,"visits":10},{"name":"שי ליאור","phone":"0522294078","last_visit":"02/09/2025","days_inactive":273,"visits":2},{"name":"רותם טובול","phone":"0505645022","last_visit":"02/09/2025","days_inactive":273,"visits":3},{"name":"מעיין ברזילי","phone":"0584332066","last_visit":"07/09/2025","days_inactive":268,"visits":9},{"name":"לוסיה קאלבו","phone":"0532708063","last_visit":"11/09/2025","days_inactive":264,"visits":2},{"name":"אנה ארגונוב","phone":"0502489494","last_visit":"12/09/2025","days_inactive":263,"visits":7},{"name":"תמוז טובי","phone":"0543964398","last_visit":"14/09/2025","days_inactive":261,"visits":26},{"name":"ליאור עמר","phone":"0542644066","last_visit":"15/09/2025","days_inactive":260,"visits":2},{"name":"רעות פרנקו","phone":"0542199686","last_visit":"16/09/2025","days_inactive":259,"visits":14},{"name":"אביטל שוורץ","phone":"0548326066","last_visit":"16/09/2025","days_inactive":259,"visits":9},{"name":"עומר בסיק","phone":"0504722390","last_visit":"16/09/2025","days_inactive":259,"visits":10},{"name":"מיקה פיין","phone":"0547949980","last_visit":"19/09/2025","days_inactive":256,"visits":9},{"name":"שחר כספי","phone":"0523276269","last_visit":"21/09/2025","days_inactive":254,"visits":10},{"name":"אליאנה דרורי","phone":"0535222399","last_visit":"25/09/2025","days_inactive":250,"visits":14},{"name":"Jonathan Gutmann","phone":"0585886268","last_visit":"26/09/2025","days_inactive":249,"visits":4},{"name":"גל עפרוני","phone":"0508934033","last_visit":"26/09/2025","days_inactive":249,"visits":3},{"name":"ג׳ס מיילין דה ורה","phone":"0548148197","last_visit":"28/09/2025","days_inactive":247,"visits":8},{"name":"מיקה גולן","phone":"0558859156","last_visit":"28/09/2025","days_inactive":247,"visits":6},{"name":"ורד גורא","phone":"0543104575","last_visit":"29/09/2025","days_inactive":246,"visits":3},{"name":"זיו עמיר","phone":"0543971548","last_visit":"30/09/2025","days_inactive":245,"visits":20},{"name":"יעל גורביץ","phone":"0542198079","last_visit":"30/09/2025","days_inactive":245,"visits":13},{"name":"שי גפן","phone":"0525488200","last_visit":"30/09/2025","days_inactive":245,"visits":4},{"name":"Yael Algranti","phone":"0557724300","last_visit":"30/09/2025","days_inactive":245,"visits":6},{"name":"לירז ברש","phone":"0546363378","last_visit":"03/10/2025","days_inactive":242,"visits":13},{"name":"ליאור צרני","phone":"0542940288","last_visit":"05/10/2025","days_inactive":240,"visits":17},{"name":"בתיה לולוי","phone":"0548770939","last_visit":"05/10/2025","days_inactive":240,"visits":6},{"name":"קרן ערמוני דומני","phone":"0527360716","last_visit":"10/10/2025","days_inactive":235,"visits":4},{"name":"אייל בנטולילה","phone":"0542293535","last_visit":"12/10/2025","days_inactive":233,"visits":4},{"name":"טל גל","phone":"0544866227","last_visit":"17/10/2025","days_inactive":228,"visits":4},{"name":"שירה מור","phone":"0507805553","last_visit":"19/10/2025","days_inactive":226,"visits":3},{"name":"נטליה גורנשטיין","phone":"0548999489","last_visit":"24/10/2025","days_inactive":221,"visits":13},{"name":"שירה בר אשר","phone":"0528856516","last_visit":"24/10/2025","days_inactive":221,"visits":14},{"name":"נועם לוי","phone":"0544871589","last_visit":"02/11/2025","days_inactive":212,"visits":4},{"name":"נועה יחיאב","phone":"0547935851","last_visit":"07/11/2025","days_inactive":207,"visits":9},{"name":"מיכל שרגר","phone":"0544331134","last_visit":"11/11/2025","days_inactive":203,"visits":11},{"name":"סשה רובין","phone":"0522151594","last_visit":"13/11/2025","days_inactive":201,"visits":12},{"name":"בן הראלי","phone":"0584748589","last_visit":"13/11/2025","days_inactive":201,"visits":11},{"name":"דודו קובסניאנו","phone":"0506206203","last_visit":"13/11/2025","days_inactive":201,"visits":6},{"name":"איתי חניה","phone":"0528916917","last_visit":"18/11/2025","days_inactive":196,"visits":6},{"name":"שירה שטורם","phone":"0523913399","last_visit":"21/11/2025","days_inactive":193,"visits":13},{"name":"איב לבקובסקי","phone":"0503131400","last_visit":"25/11/2025","days_inactive":189,"visits":18},{"name":"לירון שמשון","phone":"0503778707","last_visit":"25/11/2025","days_inactive":189,"visits":14},{"name":"אתי ברקוביץ","phone":"0502203537","last_visit":"28/11/2025","days_inactive":186,"visits":13},{"name":"זיו סבן","phone":"0547190105","last_visit":"28/11/2025","days_inactive":186,"visits":10},{"name":"שחר קארו","phone":"0539948365","last_visit":"02/12/2025","days_inactive":182,"visits":6},{"name":"קייט יורקובה","phone":"0545955116","last_visit":"07/12/2025","days_inactive":177,"visits":15},{"name":"כפיר סברו","phone":"0543189834","last_visit":"12/12/2025","days_inactive":172,"visits":9},{"name":"רון כהן","phone":"0522800007","last_visit":"23/12/2025","days_inactive":161,"visits":17},{"name":"עמית אדרי","phone":"0548347112","last_visit":"25/12/2025","days_inactive":159,"visits":9},{"name":"עמית דדון","phone":"0542029927","last_visit":"30/12/2025","days_inactive":154,"visits":15},{"name":"סהר מינה","phone":"0525105109","last_visit":"08/01/2026","days_inactive":145,"visits":10},{"name":"נועה דליהו","phone":"0504400761","last_visit":"15/01/2026","days_inactive":138,"visits":12},{"name":"אריאל רובין","phone":"0543215337","last_visit":"23/01/2026","days_inactive":130,"visits":9},{"name":"מעיין אפרמיאן","phone":"0533328601","last_visit":"30/01/2026","days_inactive":123,"visits":22},{"name":"אופיר נקאש","phone":"0503321166","last_visit":"30/01/2026","days_inactive":123,"visits":13},{"name":"יובל רוזן","phone":"0546226414","last_visit":"10/02/2026","days_inactive":112,"visits":10},{"name":"אליה אוחנה","phone":"0524068883","last_visit":"15/02/2026","days_inactive":107,"visits":6},{"name":"mila tawil","phone":"0543935500","last_visit":"15/02/2026","days_inactive":107,"visits":8},{"name":"תמר צור","phone":"0542030221","last_visit":"20/02/2026","days_inactive":102,"visits":10},{"name":"מאי מירב","phone":"0547482124","last_visit":"22/02/2026","days_inactive":100,"visits":14},{"name":"עמית מרקוביץ","phone":"0524202621","last_visit":"10/03/2026","days_inactive":84,"visits":12},{"name":"מיקה מימון","phone":"0549771018","last_visit":"15/03/2026","days_inactive":79,"visits":16},{"name":"זיו צרני","phone":"0535258135","last_visit":"20/03/2026","days_inactive":74,"visits":18},{"name":"אושרי טו","phone":"0545959100","last_visit":"20/03/2026","days_inactive":74,"visits":19},{"name":"רינת כליף","phone":"0587464355","last_visit":"22/03/2026","days_inactive":72,"visits":6},{"name":"נועה חנסב","phone":"0545745636","last_visit":"29/03/2026","days_inactive":65,"visits":20},{"name":"דינה בן אריה","phone":"0547125084","last_visit":"29/03/2026","days_inactive":65,"visits":8},{"name":"סימה שלי","phone":"0507121270","last_visit":"01/04/2026","days_inactive":62,"visits":12},{"name":"אלון ק","phone":"0528022297","last_visit":"05/04/2026","days_inactive":58,"visits":5},{"name":"טל ברק","phone":"0552419414","last_visit":"07/04/2026","days_inactive":56,"visits":22},{"name":"נטע-לי סטרונגין","phone":"0535295401","last_visit":"14/04/2026","days_inactive":49,"visits":16},{"name":"מיתר פרידמן","phone":"0547532434","last_visit":"14/04/2026","days_inactive":49,"visits":22},{"name":"דניאל ים","phone":"0542133402","last_visit":"14/04/2026","days_inactive":49,"visits":19},{"name":"גלעד שחם","phone":"0526060576","last_visit":"17/04/2026","days_inactive":46,"visits":16},{"name":"יובל פלג","phone":"0524410655","last_visit":"17/04/2026","days_inactive":46,"visits":12},{"name":"אבי מצלאוי","phone":"0504430400","last_visit":"17/04/2026","days_inactive":46,"visits":14},{"name":"גאיה צור","phone":"0546878293","last_visit":"18/04/2026","days_inactive":45,"visits":9},{"name":"רננה חזי גיספן","phone":"0524418543","last_visit":"19/04/2026","days_inactive":44,"visits":10},{"name":"נועה חביב","phone":"0543977970","last_visit":"19/04/2026","days_inactive":44,"visits":8},{"name":"שיר משען","phone":"0524024252","last_visit":"24/04/2026","days_inactive":39,"visits":22},{"name":"נטע אגיוף","phone":"0503831138","last_visit":"24/04/2026","days_inactive":39,"visits":9},{"name":"יהודה קרויזר","phone":"0505762096","last_visit":"26/04/2026","days_inactive":37,"visits":12},{"name":"אוסנת מילר","phone":"0522748999","last_visit":"27/04/2026","days_inactive":36,"visits":7},{"name":"אלה אורנשטיין","phone":"0523393986","last_visit":"28/04/2026","days_inactive":35,"visits":19},{"name":"הילי קופרפיש","phone":"0547402724","last_visit":"28/04/2026","days_inactive":35,"visits":7},{"name":"שירלי גאבר","phone":"0542500605","last_visit":"29/04/2026","days_inactive":34,"visits":8},{"name":"אילה נאור נתן","phone":"0548326611","last_visit":"30/04/2026","days_inactive":33,"visits":12},{"name":"ניסים פרץ","phone":"0542050746","last_visit":"01/05/2026","days_inactive":32,"visits":4},{"name":"נועה בוכמן","phone":"0528802811","last_visit":"03/05/2026","days_inactive":30,"visits":9},{"name":"בתיה לולוי","phone":"0532091074","last_visit":"03/05/2026","days_inactive":30,"visits":5},{"name":"טל אילן","phone":"0503481130","last_visit":"03/05/2026","days_inactive":30,"visits":6}];
+
+let inactiveFilter = 'all';
+let inactiveSort = { col: 'days_inactive', dir: -1 };
 
 function getDayClass(d) {
   if (d >= 180) return 'days-critical';
@@ -350,69 +611,65 @@ function getDayClass(d) {
   return 'days-low';
 }
 
-function waLink(phone, name) {
-  if (!phone) return '<span style="color:var(--text2);font-size:12px">—</span>';
-  const text = encodeURIComponent(`היי ${name} 😊 כאן CABELO, שמנו לב שלא ראינו אותך זמן מה – נשמח לקבוע תור ולחדש! 💙`);
-  const num = phone.replace(/^0/, '972');
-  return `<a class="wa-btn" href="https://wa.me/${num}?text=${text}" target="_blank">📲 WhatsApp</a>`;
+function buildInactiveMsg(c) {
+  return `שלום ${c.name} 😊\n\nשמנו לב שעבר זמן מאז הטיפול האחרון שלך ב-CABELO (${c.last_visit}).\n\nנשמח לראותך שוב! ניתן לזמן תור דרך הקישור:\n🔗 ${BOOKING_LINK}\n\nמחכים לך 💛\n\nבמידה והגעת לתוצאה הרצויה וברצונך להסיר את המספר מתזכורות נוספות, אנא שלח/י את הספרה 1`;
 }
 
-function render() {
-  const search = document.getElementById('search').value.trim().toLowerCase();
-  
-  filtered = DATA.filter(c => {
-    const matchSearch = !search || c.name.toLowerCase().includes(search) || c.phone.includes(search);
-    let matchFilter = true;
-    if (currentFilter === 'critical') matchFilter = c.days_inactive >= 180;
-    else if (currentFilter === 'high')     matchFilter = c.days_inactive >= 90 && c.days_inactive < 180;
-    else if (currentFilter === 'medium')   matchFilter = c.days_inactive >= 60 && c.days_inactive < 90;
-    else if (currentFilter === 'low')      matchFilter = c.days_inactive >= 30 && c.days_inactive < 60;
-    return matchSearch && matchFilter;
+function renderInactive() {
+  const search = (document.getElementById('search')?.value || '').toLowerCase();
+  let data = INACTIVE_DATA.filter(c => {
+    const ms = !search || c.name.toLowerCase().includes(search) || c.phone.includes(search);
+    let mf = true;
+    if (inactiveFilter === 'critical') mf = c.days_inactive >= 180;
+    else if (inactiveFilter === 'high')     mf = c.days_inactive >= 90 && c.days_inactive < 180;
+    else if (inactiveFilter === 'medium')   mf = c.days_inactive >= 60 && c.days_inactive < 90;
+    else if (inactiveFilter === 'low')      mf = c.days_inactive >= 30 && c.days_inactive < 60;
+    return ms && mf;
   });
 
-  filtered.sort((a, b) => {
-    const av = a[currentSort.col], bv = b[currentSort.col];
-    if (typeof av === 'string') return currentSort.dir * av.localeCompare(bv);
-    return currentSort.dir * (av - bv);
+  data.sort((a, b) => {
+    const av = a[inactiveSort.col], bv = b[inactiveSort.col];
+    return typeof av === 'string' ? inactiveSort.dir * av.localeCompare(bv) : inactiveSort.dir * (av - bv);
   });
 
   const tbody = document.getElementById('table-body');
-  if (filtered.length === 0) {
+  if (!tbody) return;
+
+  document.getElementById('visible-count').textContent = data.length;
+  document.getElementById('total-count').textContent = INACTIVE_DATA.length;
+
+  if (data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">לא נמצאו לקוחות</div></td></tr>`;
-  } else {
-    tbody.innerHTML = filtered.map((c, i) => `
-      <tr>
-        <td style="color:var(--text2);font-size:12px">${i + 1}</td>
-        <td class="name-cell">${c.name}</td>
-        <td class="phone-cell">${c.phone ? `<a class="phone-link" href="tel:${c.phone}">${c.phone}</a>` : '—'}</td>
-        <td>${c.last_visit}</td>
-        <td><span class="days-badge ${getDayClass(c.days_inactive)}">${c.days_inactive} ימים</span></td>
-        <td class="visits-cell">${c.visits}</td>
-        <td>${waLink(c.phone, c.name)}</td>
-      </tr>
-    `).join('');
+    return;
   }
 
-  document.getElementById('visible-count').textContent = filtered.length;
-  document.getElementById('total-count').textContent = DATA.length;
+  tbody.innerHTML = data.map((c, i) => {
+    const phone = c.phone ? c.phone.replace(/^0/, '972') : '';
+    const waMsg = encodeURIComponent(buildInactiveMsg(c));
+    return `<tr>
+      <td style="color:var(--text2);font-size:12px">${i+1}</td>
+      <td style="font-weight:600">${c.name}</td>
+      <td>${c.phone ? `<a class="phone-link" href="tel:${c.phone}">${c.phone}</a>` : '—'}</td>
+      <td style="color:var(--text2);font-size:13px">${c.last_visit}</td>
+      <td><span class="days-badge ${getDayClass(c.days_inactive)}">${c.days_inactive} ימים</span></td>
+      <td style="color:var(--text2);font-size:13px">${c.visits}</td>
+      <td>${phone ? `<a class="wa-btn-sm" href="https://wa.me/${phone}?text=${waMsg}" target="_blank">📲 WhatsApp</a>` : '—'}</td>
+    </tr>`;
+  }).join('');
 }
-
-function filterTable() { render(); }
 
 function setFilter(f, btn) {
-  currentFilter = f;
+  inactiveFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  render();
+  renderInactive();
 }
 
-function sortBy(col) {
-  if (currentSort.col === col) currentSort.dir *= -1;
-  else { currentSort.col = col; currentSort.dir = -1; }
-  render();
+function sortInactive(col) {
+  if (inactiveSort.col === col) inactiveSort.dir *= -1;
+  else { inactiveSort.col = col; inactiveSort.dir = -1; }
+  renderInactive();
 }
-
-render();
 </script>
 </body>
 </html>
