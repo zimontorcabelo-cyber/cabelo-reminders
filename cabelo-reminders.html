@@ -337,11 +337,11 @@ async function loadAppointments() {
     const items1 = (data1.items || []).filter(e => e.summary && e.summary.trim() !== '.' && e.summary.trim() !== '');
     const items2 = (data2.items || []).filter(e => e.summary && /0\d{9}/.test(e.summary));
 
-    // מיזוג ללא כפילויות (לפי שם + שעה)
+    // מיזוג ללא כפילויות (לפי שם בלבד)
     const seen = new Set();
     const allItems = [];
     for (const item of [...items1, ...items2]) {
-      const key = `${(item.summary||'').trim()}_${item.start?.dateTime||item.start?.date}`;
+      const key = (item.summary||'').trim().split('|')[0].trim();
       if (!seen.has(key)) {
         seen.add(key);
         allItems.push(item);
@@ -386,7 +386,10 @@ function buildInactiveMsg(client) {
 }
 
 function buildWALink(phone, msg) {
-  let p = phone.replace(/\D/g,'');
+  let p = phone.replace(/\D/g,'').replace(/\.0$/, '');
+  // אם 9 ספרות (ללא אפס) - הוסף 0
+  if (p.length === 9) p = '0' + p;
+  // המר לפורמט בינלאומי
   if (p.startsWith('0')) p = '972' + p.slice(1);
   return `https://wa.me/${p}?text=${encodeURIComponent(msg)}`;
 }
