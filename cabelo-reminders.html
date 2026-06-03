@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -318,14 +319,43 @@ async function loadAppointments() {
   const target = getTargetDate();
   const start = new Date(target); start.setHours(0,0,0,0);
   const end = new Date(target); end.setHours(23,59,59,999);
-  const calId = encodeURIComponent(EASYBIZ_CALENDAR);
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${calId}/events?timeMin=${start.toISOString()}&timeMax=${end.toISOString()}&singleEvents=true&orderBy=startTime&maxResults=50`;
+  const timeMin = start.toISOString();
+  const timeMax = end.toISOString();
+
+  // שליפה משני יומנות במקביל
+  const headers = {Authorization: `Bearer ${accessToken}`};
+  const calEasyBiz = encodeURIComponent(EASYBIZ_CALENDAR);
+  const calPrimary = 'primary';
+
   try {
-    const res = await fetch(url, {headers: {Authorization: `Bearer ${accessToken}`}});
-    const data = await res.json();
-    appointments = (data.items || [])
-      .filter(e => e.summary && e.summary.trim() !== '.' && e.summary.trim() !== '')
-      .map(parseEvent);
+    const [res1, res2] = await Promise.all([
+      fetch(`https://www.googleapis.com/calendar/v3/calendars/${calEasyBiz}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=50`, {headers}),
+      fetch(`https://www.googleapis.com/calendar/v3/calendars/${calPrimary}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=50`, {headers})
+    ]);
+    const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
+
+    const items1 = (data1.items || []).filter(e => e.summary && e.summary.trim() !== '.' && e.summary.trim() !== '');
+    const items2 = (data2.items || []).filter(e => e.summary && /0\d{9}/.test(e.summary));
+
+    // מיזוג ללא כפילויות (לפי שם + שעה)
+    const seen = new Set();
+    const allItems = [];
+    for (const item of [...items1, ...items2]) {
+      const key = `${(item.summary||'').trim()}_${item.start?.dateTime||item.start?.date}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        allItems.push(item);
+      }
+    }
+
+    // מיין לפי שעה
+    allItems.sort((a, b) => {
+      const ta = a.start?.dateTime || a.start?.date || '';
+      const tb = b.start?.dateTime || b.start?.date || '';
+      return ta.localeCompare(tb);
+    });
+
+    appointments = allItems.map(parseEvent);
     renderReminders();
   } catch(err) {
     document.getElementById('reminders-app').innerHTML = '<div style="color:var(--danger);padding:20px">שגיאה בטעינת יומן</div>';
