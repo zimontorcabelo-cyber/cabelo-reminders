@@ -385,7 +385,8 @@ function renderReminders() {
   let html = `
     <div class="date-row">
       <span class="date-label">תאריך:</span>
-      <input type="date" class="date-input" value="${targetStr}" onchange="selectedDate=this.value;loadAppointments()" />
+      <input type="date" class="date-input" id="mainDatePicker" value="${targetStr}" />
+      <button class="btn-load" onclick="selectedDate=document.getElementById('mainDatePicker').value;loadAppointments()">טען</button>
     </div>`;
 
   if (appointments.length > 0) {
